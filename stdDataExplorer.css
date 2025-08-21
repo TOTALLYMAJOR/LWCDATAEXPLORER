@@ -1,0 +1,10 @@
+/* force-app/main/default/lwc/stdDataExplorer/stdDataExplorer.css */
+.sde {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 0.75rem;
+}
+.sde__left, .sde__right { min-height: 400px; }
+@media (max-width: 1024px) {
+.sde { grid-template-columns: 1fr; }
+}
