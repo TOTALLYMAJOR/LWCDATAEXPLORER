@@ -1,0 +1,80 @@
+<!-- force-app/main/default/lwc/stdDataExplorer/stdDataExplorer.html -->
+<template>
+<div class="sde">
+<div class="sde__left">
+<lightning-card title="Account Search & Filters">
+<div class="slds-p-horizontal_small slds-p-vertical_small slds-grid slds-wrap slds-gutters">
+<div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
+<lightning-input type="search" label="Search by Name" value={searchTerm} onchange={handleSearchTerm}></lightning-input>
+</div>
+<div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+<lightning-input type="number" label="Min Annual Revenue" value={minAnnualRevenue} onchange={handleMinRevenue}></lightning-input>
+</div>
+<div class="slds-col slds-size_1-of-2">
+<lightning-combobox label="Industry" value={industry} options={industryOptions} placeholder="All" onchange={handleIndustry}></lightning-combobox>
+</div>
+<div class="slds-col slds-size_1-of-2">
+<lightning-combobox label="Rating" value={rating} options={ratingOptions} placeholder="All" onchange={handleRating}></lightning-combobox>
+</div>
+<div class="slds-col slds-size_1-of-1 slds-m-top_small">
+<lightning-button variant="brand" label="Search" onclick={runSearch}></lightning-button>
+<lightning-button class="slds-m-left_x-small" label="Reset" onclick={resetFilters}></lightning-button>
+</div>
+</div>
+<template if:true={accounts.data}>
+<lightning-datatable
+key-field="Id"
+data={accounts.data}
+columns={columns}
+onloadmore={handleLoadMore}
+enable-infinite-loading
+is-loading={isLoading}
+draft-values={draftValues}
+onsave={handleSave}
+onrowaction={handleRowAction}
+selected-rows={selectedRowIds}
+onrowselection={handleRowSelection}
+></lightning-datatable>
+<div class="slds-p-around_x-small slds-text-title_caps slds-text-align_center">
+{summaryText}
+</div>
+</template>
+<template if:true={accounts.error}>
+<c-error-panel errors={accounts.error}></c-error-panel>
+</template>
+</lightning-card>
+</div>
+
+
+<div class="sde__right">
+<lightning-card title="Related (Contacts & Opportunities)">
+<template if:true={selectedAccountName}>
+<div class="slds-p-horizontal_small slds-text-title">
+Selected: {selectedAccountName}
+</div>
+</template>
+<lightning-tabset>
+<lightning-tab label="Contacts" value="contacts">
+<template if:true={related.contacts}>
+<lightning-datatable key-field="Id" data={related.contacts}
+columns={contactColumns}></lightning-datatable>
+<div class="sds-p-around_x-small slds-text-align_center slds-text-body_small">
+{contactSummary}
+</div>
+</template>
+</lightning-tab>
+<lightning-tab label="Opportunities" value="opps">
+<lightning-checkbox label="Open only" checked={openOnly} onchange={toggleOpenOnly}></lightning-checkbox>
+<template if:true={related.opportunities}>
+<lightning-datatable key-field="Id" data={related.opportunities}
+columns={oppColumns}></lightning-datatable>
+<div class="sds-p-around_x-small slds-text-align_center slds-text-body_small">
+{oppSummary}
+</div>
+</template>
+</lightning-tab>
+</lightning-tabset>
+</lightning-card>
+</div>
+</div>
+</template>
