@@ -1,0 +1,48 @@
+Complex LWC: stdDataExplorer (Accounts → Contacts & Opportunities)
+
+A production-grade LWC that lets users search & filter Accounts with infinite scroll, select a row, and see related Contacts & Opportunities in a side panel. Includes inline edit (UI API), caching, server pagination, CRUD/FLS enforcement in Apex, and a validation plan. Built only on standard objects.
+
+
+Deploy (SFDX):
+
+sf project deploy start --source-dir force-app
+
+Assign Permission Set to target users: Std Data Explorer Access.
+
+Add LWC to an App Page or Home Page in the Lightning App Builder.
+
+Test with a profile that only has read/edit to the specified Account fields to validate FLS enforcement.
+
+Data volume: if your org returns >2000 matches, advise users to refine filters (OFFSET limit). For very large lists, consider a keyset pagination enhancement (bookmark Id + WHERE Name >= :lastName), which can be added to the Apex.
+
+Optional Enhancements (new techniques)
+
+Keyset Pagination (replace OFFSET): pass lastSeenName/Id back and query WHERE Name > :lastSeenName ORDER BY Name LIMIT :ps.
+
+Client-side Virtualization: wrap datatable in a container with fixed height to minimize reflows; or use SLDS virtual-list patterns.
+
+Record-Triggered Flows for side-effects (e.g., when Rating changes, create a Task).
+
+LMS Pub/Sub: publish the selected Account on a Lightning Message Channel for other components.
+
+GraphQL UI API (pilot/beta): fetch Account → Contacts → Opportunities in one network call when GraphQL is enabled; keep the Apex fallback.
+
+Row-level Security Telemetry: expose readDecision.getRemovedFields() to log stripped fields (admin-only path).
+
+Validation Plan
+
+Unit: Apex tests (stripInaccessible behavior, pagination math, filter combinations); Jest smoke tests.
+
+UAT: verify FLS by revoking edit on a field and confirming inline edit blocks it.
+
+Perf: test with 2k Accounts; confirm steady scrolling & minimal reflows.
+
+Monitor: add Platform Event / Log after 10k queries to detect heavy usage.
+
+Notes & Safety
+
+All SOQL filters are parameterized; no string concatenation of user input.
+
+with sharing ensures row-level security.
+
+Updates are whitelisted to common, safe fields.
